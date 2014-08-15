@@ -1,10 +1,10 @@
 #import "SelectFriendViewController.h"
 #import "CBFriendList.h"
 #import "CBService.h"
-#import "CBSession.h"
 #import "CBFriend.h"
 #import "UIImageView+AFNetworking.h"
 #import "Views.h"
+#import "UIViewController+CBSession.h"
 #import <CocoaLumberjack/DDLog.h>
 
 static const int ddLogLevel = LOG_LEVEL_VERBOSE;
@@ -44,14 +44,12 @@ enum
     [self.loading sizeToFit];
     [Views alignCenterMiddle:self.loading containerFrame:self.view.frame];
     [self.view addSubview:self.loading];
+}
 
-    if ([CBSession getSession] && [[CBSession getSession] isOpen])
-    {
-        [self loadFriends];
-    } else
-    {
-        [self performSelector:@selector(goBackToMain) withObject:nil afterDelay:1];
-    }
+- (void) viewDidAppear:(BOOL) animated
+{
+    [super viewDidAppear:animated];
+    [self onCBSessionOpen:@selector(loadFriends) onCBSessionClose:@selector(goBackToMain)];
 }
 
 - (void) goBackToMain
@@ -158,7 +156,8 @@ enum
 
 - (void) alertView:(UIAlertView*) alertView clickedButtonAtIndex:(NSInteger) buttonIndex
 {
-    if (buttonIndex != alertView.cancelButtonIndex) {
+    if (buttonIndex != alertView.cancelButtonIndex)
+    {
         [self.delegate selectFriend:self.selectedFriend];
     }
 }
